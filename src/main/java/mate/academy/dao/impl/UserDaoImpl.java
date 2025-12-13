@@ -4,7 +4,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import java.util.List;
 import java.util.Optional;
 import mate.academy.dao.UserDao;
 import mate.academy.exception.DataProcessingException;
@@ -45,16 +44,7 @@ public class UserDaoImpl implements UserDao {
             CriteriaQuery<User> query = cb.createQuery(User.class);
             Root<User> from = query.from(User.class);
             Predicate email1 = cb.equal(from.get("email"), email);
-            List<User> userList = session.createQuery(query.where(email1)).getResultList();
-            if (userList.size() > 1) {
-                throw new DataProcessingException("There is a problem in DB, two users "
-                        + "with same email: " + email);
-            }
-            if (userList.isEmpty()) {
-                throw new DataProcessingException("There is no user with email: "
-                        + email + "in DB");
-            }
-            return Optional.of(userList.get(0));
+            return session.createQuery(query.where(email1)).uniqueResultOptional();
         } catch (Exception e) {
             throw new DataProcessingException("Can't find User by email: " + email + " in DB", e);
         }

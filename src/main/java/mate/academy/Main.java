@@ -2,6 +2,7 @@ package mate.academy;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 import mate.academy.exception.AuthenticationException;
 import mate.academy.exception.RegistrationException;
 import mate.academy.lib.Injector;
@@ -71,17 +72,21 @@ public class Main {
         } catch (RegistrationException e) {
             System.out.println("Registration failed: " + e.getMessage());
         }
-        System.out.println(userService.findByEmail("user343@gmail.com").get());
+        try {
+            System.out.println(userService.findByEmail("user343@gmail.com").get());
+        } catch (NoSuchElementException e) {
+            System.out.println("No user with such email");
+        }
         try {
             System.out.println(authenticationService.login("unknown@333.com", "1234"));
         } catch (AuthenticationException e) {
-            System.out.println("There is no user");
+            System.out.println(e.getMessage());
         }
         try {
             System.out.println("User is found: \n"
                     + authenticationService.login("user343@gmail.com", "20002025"));
         } catch (AuthenticationException e) {
-            System.out.println("There is no user");
+            System.out.println(e.getMessage());
         }
     }
 }

@@ -7,6 +7,7 @@ import mate.academy.lib.Inject;
 import mate.academy.lib.Service;
 import mate.academy.model.User;
 import mate.academy.service.UserService;
+import mate.academy.util.HashUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -16,20 +17,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public User add(User user) {
         try {
-            return userDao.add(user);
+            byte[] salt = HashUtil.getSalt();
+            String hashedPassword = HashUtil.hashPassword(user.getPassword(), salt);
+            User userForDb = new User();
+            userForDb.setSalt(salt);
+            userForDb.setPassword(hashedPassword);
+            userForDb.setEmail(user.getEmail());
+            userDao.add(userForDb);
+            return userForDb;
         } catch (DataProcessingException e) {
-            System.out.println("Can't add user to db" + user);
-            return user;
+            throw new DataProcessingException(e.getMessage());
         }
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
-        try {
-            return userDao.findByEmail(email);
-        } catch (DataProcessingException e) {
-            System.out.println("User not found in DB: " + email);
-            return Optional.empty();
-        }
+        return userDao.findByEmail(email);
     }
 }

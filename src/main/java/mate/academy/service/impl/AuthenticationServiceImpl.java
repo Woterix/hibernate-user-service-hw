@@ -18,21 +18,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public User login(String email, String password) throws AuthenticationException {
-        if (password == null || password.isBlank()) {
-            throw new AuthenticationException("Password is incorrect, try again");
-        }
         if (email == null || !email.matches(EMAIL_FORM)) {
             throw new AuthenticationException("Email is invalid");
         }
-        User user = userService.findByEmail(email)
-                .orElseThrow(() -> new AuthenticationException("There is no user with email: "
-                        + email
-                        + ", you should press 'Register'"));
-        String candidatePasswordHash = HashUtil.hashPassword(password, user.getSalt());
-        if (!user.getPassword().equals(candidatePasswordHash)) {
-            throw new AuthenticationException("Password is incorrect, try again");
+        Optional<User> byEmail = userService.findByEmail(email);
+        if (byEmail.isEmpty() || !byEmail.get().getPassword()
+                .equals(HashUtil.hashPassword(password, byEmail.get().getSalt()))) {
+            throw new AuthenticationException("Can't login, email or password is incorrect");
         }
-        return user;
+        return byEmail.get();
     }
 
     @Override
@@ -48,13 +42,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new RegistrationException("User with email: " + email
                     + " is already registered");
         }
-        byte[] salt = HashUtil.getSalt();
-        String finalPassword = HashUtil.hashPassword(password, salt);
         User user = new User();
+        user.setPassword(password);
         user.setEmail(email);
-        user.setSalt(salt);
-        user.setPassword(finalPassword);
-        userService.add(user);
-        return user;
+        return userService.add(user);
     }
 }

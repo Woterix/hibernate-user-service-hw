@@ -1,10 +1,10 @@
 package mate.academy.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.util.Arrays;
 
 @Entity
 public class User {
@@ -13,6 +13,7 @@ public class User {
     private Long id;
     private byte[] salt;
     private String password;
+    @Column(unique = true)
     private String email;
 
     public Long getId() {
@@ -50,8 +51,7 @@ public class User {
     @Override
     public String toString() {
         return "User{"
-                + "id=" + id
-                + ", salt=" + Arrays.toString(salt) + ", password='" + password + '\''
+                + "id=" + id + '\''
                 + ", email='" + email + '\''
                 + '}';
     }
