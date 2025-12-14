@@ -2,7 +2,6 @@ package mate.academy.service.impl;
 
 import java.util.Optional;
 import mate.academy.dao.UserDao;
-import mate.academy.exception.DataProcessingException;
 import mate.academy.lib.Inject;
 import mate.academy.lib.Service;
 import mate.academy.model.User;
@@ -16,18 +15,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User add(User user) {
-        try {
-            byte[] salt = HashUtil.getSalt();
-            String hashedPassword = HashUtil.hashPassword(user.getPassword(), salt);
-            User userForDb = new User();
-            userForDb.setSalt(salt);
-            userForDb.setPassword(hashedPassword);
-            userForDb.setEmail(user.getEmail());
-            userDao.add(userForDb);
-            return userForDb;
-        } catch (DataProcessingException e) {
-            throw new DataProcessingException(e.getMessage());
-        }
+        byte[] salt = HashUtil.getSalt();
+        String hashedPassword = HashUtil.hashPassword(user.getPassword(), salt);
+        User userForDb = new User();
+        userForDb.setSalt(salt);
+        userForDb.setPassword(hashedPassword);
+        userForDb.setEmail(user.getEmail());
+        userDao.add(userForDb);
+        return userForDb;
     }
 
     @Override
